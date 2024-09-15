@@ -11,7 +11,6 @@ const homepageCacheTTL = 1000 * 60 * 60 * 24; // 1 day
 const homepageUrl =
   'https://www.nachrichtenleicht.de/nachrichtenleicht-nachrichten-100.html';
 
-
 @Injectable()
 export class DownloaderService {
   private readonly homepageCache = useCache('homepage', homepageCacheTTL);
@@ -20,10 +19,11 @@ export class DownloaderService {
   async downloadNewArticles() {
     const homepage = await downloadHTML(this.homepageCache, homepageUrl);
     const articlesLinks = parseHomepageForArticles(homepage);
-    const articlePages = await Promise.all(
-      articlesLinks.map((a) => downloadHTML(this.articleCache, a.href)),
-    );
-    return articlePages.map(parseArticle);
+    const articles = articlesLinks.map(async (a) => {
+      const document = await downloadHTML(this.articleCache, a.href);
+      return parseArticle(document, a);
+    });
+    return Promise.all(articles);
   }
 }
 

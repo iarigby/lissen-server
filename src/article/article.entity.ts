@@ -5,6 +5,15 @@ export class Article {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column('text', { unique: true })
+  sourceURL: string;
+
+  @Column('text', { nullable: true })
+  sourceAudioURL?: string;
+
+  @Column('text')
+  sourceImageURL: string;
+
   @Column('text')
   title: string;
 
@@ -16,7 +25,4 @@ export class Article {
 
   @Column('text')
   content: string;
-
-  @Column('text', { nullable: true })
-  audioURL?: string;
 }
