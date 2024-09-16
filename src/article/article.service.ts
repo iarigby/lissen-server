@@ -13,8 +13,12 @@ export class ArticleService {
     return this.articleRepository.find();
   }
 
-  async findOne(id: number): Promise<Article> {
+  async findOne(id: number): Promise<Article | null> {
     return this.articleRepository.findOneBy({ id: id });
+  }
+
+  async findByURL(url: string): Promise<Article | null> {
+    return this.articleRepository.findOneBy({ sourceURL: url });
   }
 
   async create(article: Article): Promise<Article> {

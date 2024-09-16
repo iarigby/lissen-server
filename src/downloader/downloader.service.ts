@@ -3,7 +3,7 @@ import * as path from 'path';
 import NodeFetchCache, { FileSystemCache } from 'node-fetch-cache';
 import * as os from 'os';
 import * as jsdom from 'jsdom';
-import { parseArticle, parseHomepageForArticles } from './parser';
+import { HomePageArticle, parseArticle, parseHomepageForArticles } from './parser';
 
 const cacheLocation = path.join(os.homedir(), '.cache', 'lissen');
 const homepageCacheTTL = 1000 * 60 * 60 * 24; // 1 day
@@ -16,14 +16,14 @@ export class DownloaderService {
   private readonly homepageCache = useCache('homepage', homepageCacheTTL);
   private readonly articleCache = useCache('articles');
 
-  async downloadNewArticles() {
+  async fetchNewArticles() {
     const homepage = await downloadHTML(this.homepageCache, homepageUrl);
-    const articlesLinks = parseHomepageForArticles(homepage);
-    const articles = articlesLinks.map(async (a) => {
-      const document = await downloadHTML(this.articleCache, a.href);
-      return parseArticle(document, a);
-    });
-    return Promise.all(articles);
+    return parseHomepageForArticles(homepage);
+  }
+
+  async downloadArticle(articleLink: HomePageArticle) {
+    const document = await downloadHTML(this.articleCache, articleLink.href);
+    return parseArticle(document, articleLink);
   }
 }
 
