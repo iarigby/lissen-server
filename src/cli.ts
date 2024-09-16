@@ -7,11 +7,17 @@ async function bootstrap() {
   const app = await NestFactory.createApplicationContext(AppModule);
   const downloaderService = app.get(DownloaderService);
   const articleService = app.get(ArticleService);
-  const articles = await downloaderService.downloadNewArticles();
-  console.log('found new articles');
+  const articleLinks = await downloaderService.fetchNewArticles();
+  const downloads = articleLinks.map(async (a) => {
+    const exists = await articleService.findByURL(a.href);
+    if (!exists) {
+      return downloaderService.downloadArticle(a);
+    }
+  });
 
-  articles.forEach((article) => {
-    console.log('creating new article');
+  const articles = await Promise.all(downloads);
+  const newArticles = articles.filter((a) => a);
+  newArticles.forEach((article) => {
     // @ts-expect-error want to avoid using Article entity in the parser for now
     articleService.create(article);
   });

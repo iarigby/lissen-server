@@ -36,7 +36,13 @@ export function parseArticle(
   return article;
 }
 
-export function parseHomepageForArticles(document: Document) {
+export interface HomePageArticle {
+  title: string;
+  href: string;
+  imageURL: string;
+}
+
+export function parseHomepageForArticles(document: Document): HomePageArticle[] {
   const articles = document.getElementsByTagName('article');
   return [...articles]
     .map((a) => a.children[0])
